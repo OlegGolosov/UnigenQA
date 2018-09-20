@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 3.0)
 project(UnigenQA)
 set(PROJECT_VERSION 1.0)
 set(CMAKE_cpp_STANDARD 11)
@@ -12,10 +12,10 @@ file(GLOB QA_HEADERS src/*.h)
 file(GLOB QA_HEADERS_DICT RELATIVE ${CMAKE_SOURCE_DIR}/src src/*.h)
 list(REMOVE_ITEM UNIGEN_HEADERS_DICT UnigenLinkDef.h)
 
-set (HEADERS 
-	${UNIGEN_HEADERS}
-	${QA_HEADERS}
-)
+set(HEADERS
+        ${UNIGEN_HEADERS}
+        ${QA_HEADERS}
+        )
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -44,88 +44,92 @@ target_link_libraries(UnigenQA ${ROOT_LIBRARIES} Unigen)
 add_dependencies(UnigenQA Unigen)
 
 # Create a main program using the library
-#add_executable(RunUnigenQA macro/RunUnigenQA.C)
-#target_link_libraries(RunUnigenQA UnigenQA ${ROOT_LIBRARIES})
-#target_include_directories(RunUnigenQA PUBLIC)
+add_executable(RunUnigenQA src/RunUnigenQA.C)
+target_link_libraries(RunUnigenQA UnigenQA ${ROOT_LIBRARIES})
+
+add_executable(RunUnigenQAFilelist src/RunUnigenQAFilelist.C)
+target_link_libraries(RunUnigenQAFilelist UnigenQA ${ROOT_LIBRARIES})
+
+
+
+
+
+
 
 include(GenerateExportHeader)
 
-if (${CMAKE_MAJOR_VERSION} GREATER 2)
 
-    generate_export_header(UnigenQA)
-    set_property(TARGET UnigenQA PROPERTY VERSION ${PROJECT_VERSION})
-    set_property(TARGET UnigenQA PROPERTY SOVERSION ${PROJECT_VERSION})
-    set_property(TARGET UnigenQA PROPERTY INTERFACE_UnigenQA_MAJOR_VERSION 1)
-    set_property(TARGET UnigenQA APPEND PROPERTY COMPATIBLE_INTERFACE_STRING INTERFACE_UnigenQA_MAJOR_VERSION)
+generate_export_header(UnigenQA)
+set_property(TARGET UnigenQA PROPERTY VERSION ${PROJECT_VERSION})
+set_property(TARGET UnigenQA PROPERTY SOVERSION ${PROJECT_VERSION})
+set_property(TARGET UnigenQA PROPERTY INTERFACE_UnigenQA_MAJOR_VERSION 1)
+set_property(TARGET UnigenQA APPEND PROPERTY COMPATIBLE_INTERFACE_STRING INTERFACE_UnigenQA_MAJOR_VERSION)
 
-    install(TARGETS Unigen UnigenQA 
-	    EXPORT UnigenQATargets
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib
-            RUNTIME DESTINATION bin
-            INCLUDES DESTINATION include
-            )
+install(TARGETS Unigen UnigenQA
+        EXPORT UnigenQATargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+        )
 
-    install(
-            FILES
-            ${HEADERS}
-            "${CMAKE_CURRENT_BINARY_DIR}/unigenqa_export.h"
-            DESTINATION
-            include
-            COMPONENT
-            Devel
-    )
+install(
+        FILES
+        ${HEADERS}
+        "${CMAKE_CURRENT_BINARY_DIR}/unigenqa_export.h"
+        DESTINATION
+        include
+        COMPONENT
+        Devel
+)
 
-    #install(
-    #        FILES
-		#        "${CMAKE_CURRENT_BINARY_DIR}/${PCM_FILE_NAME}_rdict.pcm"
-    #        DESTINATION
-    #        lib
-    #        OPTIONAL
-    #)
+#install(
+#        FILES
+#        "${CMAKE_CURRENT_BINARY_DIR}/${PCM_FILE_NAME}_rdict.pcm"
+#        DESTINATION
+#        lib
+#        OPTIONAL
+#)
 
-    include(CMakePackageConfigHelpers)
-    write_basic_package_version_file(
-            "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfigVersion.cmake"
-            VERSION ${PROJECT_VERSION}
-            COMPATIBILITY AnyNewerVersion
-    )
-						
-    export(EXPORT UnigenQATargets
-            FILE "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQATargets.cmake")
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+)
 
-    set(ConfigPackageLocation lib/cmake/UnigenQA)
+export(EXPORT UnigenQATargets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQATargets.cmake")
 
-    set(UnigenQA_INCLUDE_DIR "include")
-    set(UnigenQA_LIBRARY_DIR "lib")
+set(ConfigPackageLocation lib/cmake/UnigenQA)
 
-    configure_package_config_file(
-            UnigenQAConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfig.cmake
-            INSTALL_DESTINATION ${ConfigPackageLocation}
-            PATH_VARS UnigenQA_INCLUDE_DIR UnigenQA_LIBRARY_DIR
-            #  [NO_SET_AND_CHECK_MACRO]
-            #  [NO_CHECK_REQUIRED_COMPONENTS_MACRO]
-            #  [INSTALL_PREFIX <path>]
-    )
+set(UnigenQA_INCLUDE_DIR "include")
+set(UnigenQA_LIBRARY_DIR "lib")
 
-    install(EXPORT UnigenQATargets
-            FILE
-            UnigenQATargets.cmake
-            DESTINATION
-            ${ConfigPackageLocation}
-            )
+configure_package_config_file(
+        UnigenQAConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfig.cmake
+        INSTALL_DESTINATION ${ConfigPackageLocation}
+        PATH_VARS UnigenQA_INCLUDE_DIR UnigenQA_LIBRARY_DIR
+        #  [NO_SET_AND_CHECK_MACRO]
+        #  [NO_CHECK_REQUIRED_COMPONENTS_MACRO]
+        #  [INSTALL_PREFIX <path>]
+)
 
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfig.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfigVersion.cmake"
-            DESTINATION
-            ${ConfigPackageLocation}
-            COMPONENT
-            Devel
-            )
+install(EXPORT UnigenQATargets
+        FILE
+        UnigenQATargets.cmake
+        DESTINATION
+        ${ConfigPackageLocation}
+        )
 
-else ()
-    message("CMAKE_MAJOR_VERSION <= 2. Packaging routine won't be generated")
-endif ()
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/UnigenQA/UnigenQAConfigVersion.cmake"
+        DESTINATION
+        ${ConfigPackageLocation}
+        COMPONENT
+        Devel
+        )
+
 
 
