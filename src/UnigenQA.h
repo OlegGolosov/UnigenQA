@@ -26,7 +26,23 @@ namespace qa {
      */
 		
 		enum EMomentumAxis {
-        kPT = 0, kETA, kPHI, kYM, kEcm, kElab, kPcm, kPlab, kMcm, kMlab, kA, kZ, kMpdg, kMcm_Ecm, kMlab_Elab, kAxes 
+        kPT = 0, 
+        kETA, 
+        kPHI, 
+        kYM, 
+        kEcm, 
+        kElab, 
+        kPcm, 
+        kPlab, 
+        kPzLab, 
+        kMcm, 
+        //kMlab, 
+        kA, 
+        kZ, 
+        //kMpdg, 
+        //kMcm_Ecm, 
+        //kMlab_Elab, 
+        kAxes 
     };
 
     struct TMomentumAxis {
@@ -53,27 +69,60 @@ namespace qa {
             {.id = kPcm, .name = "Pcm", .displayName="p_{CM} (GeV/#it{c})", .nBins = 1000, .min=0., .max=500.},
             /* full momentum in lab frame */
             {.id = kPlab, .name = "Plab", .displayName="p_{LS} (GeV/#it{c})", .nBins = 1000, .min=0., .max=2400.},
+            /* Pz in lab frame */
+            {.id = kPzLab, .name = "PzLab", .displayName="p_{z, LS} (GeV/#it{c})", .nBins = 1000, .min=0., .max=2400.},
             /* mass in CoM frame */
             {.id = kMcm, .name = "Mcm", .displayName="M_{CMS} (GeV/#it{c^{2}})", .nBins = 200, .min=0., .max=200},
             /* mass in lab frame */
-            {.id = kMlab, .name = "Mlab", .displayName="M_{LS} (GeV/#it{c^{2}})", .nBins = 200, .min=0., .max=200},
+            //{.id = kMlab, .name = "Mlab", .displayName="M_{LS} (GeV/#it{c^{2}})", .nBins = 200, .min=0., .max=200},
             /* mass number */
             {.id = kA, .name = "A", .displayName="Mass number", .nBins = 200, .min=0., .max=200},
             /* number of protons */
             {.id = kZ, .name = "Z", .displayName="Charge number", .nBins = 82, .min=0., .max=82},
             /* mass from PDG code */
-            {.id = kMpdg, .name = "Mpdg", .displayName="M_{PDG}", .nBins = 200, .min=0., .max=200},
+            //{.id = kMpdg, .name = "Mpdg", .displayName="M_{PDG}", .nBins = 200, .min=0., .max=200},
             /* E/M (CMS) */
-            {.id = kMcm_Ecm, .name = "Mcm_Ecm", .displayName="M/E (CMS)", .nBins = 100, .min=0., .max=1.},
+            //{.id = kMcm_Ecm, .name = "Mcm_Ecm", .displayName="M/E (CMS)", .nBins = 100, .min=0., .max=1.},
             /* E/M (LS) */
-            {.id = kMlab_Elab, .name = "Mlab_Elab", .displayName="M/E (LS)", .nBins = 100, .min=0., .max=1.},
+            //{.id = kMlab_Elab, .name = "Mlab_Elab", .displayName="M/E (LS)", .nBins = 100, .min=0., .max=1.},
     };
 
     /**
      * Particles definition
      */
     enum EParticles {
-        kALLSPECIES = 0, kLEPTONS, kFRAGMENTS, kPHOTON, kPROTON, kPROTONBAR, kPIPLUS, kPIMINUS, kKPLUS, kKMINUS, kLAMBDA, kLAMBDABAR, kParticles
+        kALLSPECIES = 0, 
+        kPHOTON, 
+        kPROTON, 
+        kPROTONBAR, 
+        kPIPLUS, 
+        kPIZERO, 
+        kPIMINUS, 
+        kKPLUS, 
+        kKZERO, 
+        kKMINUS, 
+        kLAMBDA, 
+        kLAMBDABAR, 
+        kSIGMAPLUS, 
+        kSIGMAZERO,
+        kSIGMAMINUS, 
+        kXIZERO, 
+        kXIMINUS, 
+        kOMEGAPLUS, 
+        kOMEGAMINUS, 
+        kDEUTRON, 
+        kTRITON, 
+        kHELIUM3, 
+        kHELIUM4, 
+        kHYPERDEUTRON, 
+        kHYPERTRITON, 
+        kHYPER2TRITON, 
+        kHYPERHELIUM3, 
+        kHYPERHELIUM4, 
+        kHYPER2HELIUM4,
+        kLEPTONS, 
+        kFRAGMENTS, 
+        kParticles
     };
 		
     const struct TParticle {
@@ -87,15 +136,37 @@ namespace qa {
 						{kALLSPECIES,   9999,  9999, 9999,"_all_species","all species"},
 						{kLEPTONS,   99999,  99999, 99999,"_leptons","leptons"},
 						{kFRAGMENTS,   999999,  999999, 999999,"_fragments","fragments"},
-						{kPHOTON,   22,  0., 0,"_photons","photons"},
-            {kPROTON,       2212,  0.938, 1,  "_p",          "p"},
-            {kPROTONBAR,    -2212, 0.938, -1, "_pbar",       "\\bar{p}"},
-            {kPIPLUS,       211,   0.138, 1,  "_piplus",     "\\pi^{+}"},
-            {kPIMINUS,      -211,  0.138, -1, "_piminus",    "\\pi^{-}"},
-            {kKPLUS,        321,   0.494, 1,  "_kplus",      "K^{+}"},
-            {kKMINUS,       -321,  0.494, -1, "_kminus",     "K^{-}"},
-            {kLAMBDA,       3122,  1.116, 1,  "_lambda",     "\\Lambda"},
-            {kLAMBDABAR,    -3122, 1.116, -1, "_lambda_bar", "\\bar{\\Lambda}"}
+						{kPHOTON,       22,    0.,     0,  "_photons","photons"},
+            {kPROTON,       2212,  0.938,  1,  "_p",          "p"},
+            {kPROTONBAR,   -2212,  0.938, -1,  "_pbar",       "#bar{p}"},
+            {kPIPLUS,       211,   0.138,  1,  "_piplus",     "#pi^{+}"},
+            {kPIZERO,       111,   0.140,  0,  "_pizero",     "#pi^{0}"},
+            {kPIMINUS,     -211,   0.138, -1,  "_piminus",    "#pi^{-}"},
+            {kKPLUS,        321,   0.494,  1,  "_kplus",      "#Kappa^{+}"},
+            {kKZERO,        310,   0.498, -1,  "_kshort",     "#Kappa^{0}_{S}"},
+            {kKMINUS,      -321,   0.494, -1,  "_kminus",     "#Kappa^{-}"},
+            {kLAMBDA,       3122,  1.116,  0,  "_lambda",     "#Lambda"},
+            {kLAMBDABAR,   -3122,  1.116,  0,  "_lambda_bar", "#bar{#Lambda}"},
+            {kSIGMAPLUS,    3222,  1.189,  1,  "_sigma_plus", "#Sigma^{+}"},
+            {kSIGMAZERO,    3212,  1.193,  0,  "_sigma_zero", "#Sigma^{0}"},
+            {kSIGMAMINUS,   3112,  1.197, -1,  "_sigma_minus","#Sigma^{-}"},
+            {kXIZERO,       3322,  1.321,  0,  "_xi_zero",    "#Xi^{0}"},
+            {kXIMINUS,      3312,  1.321, -1,  "_xi_minus",   "#Xi^{-}"},
+            {kOMEGAPLUS,   -3334,  1.672,  0,  "_omega_plus",    "#Omega^{+}"},
+            {kOMEGAMINUS,   3334,  1.672, -1,  "_omega_minus",   "#Omega^{-}"},
+            {kDEUTRON,      1000010020,  1.321, -1,  "_deutron",   "D"},
+            {kTRITON,       1000010030,  1.321, -1,  "_triton",   "T"},
+            {kHELIUM3,      1000020030,  1.321, -1,  "_helium3",   "He^{3}"},
+            {kHELIUM4,      1000020040,  1.321, -1,  "_helium4",   "He^{4}"},
+            {kHYPERDEUTRON, 1010010020,  1.321, -1,  "_hyperdeutron",   "D_{#Lambda}"},
+            {kHYPERTRITON,  1010010030,  1.321, -1,  "_hypertriton",   "T_{#Lambda}"},
+            {kHYPER2TRITON, 1020010030,  1.321, -1,  "_hyper2triton",   "T_{#Lambda#Lambda}"},
+            {kHYPERHELIUM3, 1010020030,  1.321, -1,  "_hyperhelium3",   "He^{3}_{#Lambda}"},
+            {kHYPERHELIUM4, 1010020040,  1.321, -1,  "_hyperhelium4",   "He^{4}_{#Lambda}"},
+            {kHYPER2HELIUM4,1020020040,  1.321, -1,  "_hyper2helium4",   "He^{4}_{#Lambda#Lambda}"},
+            
+//Light nuclei: deuteron, helium, triton
+//Light hyper-nuclei (hyper-triton, hyper-helium-4)
     };
 
 
@@ -157,21 +228,21 @@ namespace qa {
                 {kPHI, kETA},
                 {kYM,  kPT},
                 {kPHI, kYM},
-                {kPcm, kEcm},
-                {kPlab, kElab},
-                {kPlab, kPcm},
-                {kElab, kEcm},
-                {kPcm, kMcm_Ecm},
-                {kPlab, kMlab_Elab},
-                {kA, kEcm},
-                {kA, kElab},
-                {kA, kPcm},
-                {kA, kPlab},
-                {kMcm, kEcm},
-                {kMlab, kElab},
-                {kMcm, kMlab},
-                {kMcm, kMpdg},
-                {kMlab, kMpdg},
+                //{kPcm, kEcm},
+                //{kPlab, kElab},
+                //{kPlab, kPcm},
+                //{kElab, kEcm},
+                //{kPcm, kMcm_Ecm},
+                //{kPlab, kMlab_Elab},
+                //{kA, kEcm},
+                //{kA, kElab},
+                //{kA, kPcm},
+                //{kA, kPlab},
+                //{kMcm, kEcm},
+                //{kMlab, kElab},
+                //{kMcm, kMlab},
+                //{kMcm, kMpdg},
+                //{kMlab, kMpdg},
         };
 
         const TMomentumAxis gMultiplicity = {.id = kAxes, .name = "Mult", .displayName = "Multiplicity", .nBins = 250, .min = 0, .max = 250};

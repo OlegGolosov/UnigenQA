@@ -44,9 +44,9 @@ target_link_libraries(UnigenQA ${ROOT_LIBRARIES} Unigen)
 add_dependencies(UnigenQA Unigen)
 
 # Create a main program using the library
-#add_executable(RunUnigenQA macro/RunUnigenQA.C)
-#target_link_libraries(RunUnigenQA UnigenQA ${ROOT_LIBRARIES})
-#target_include_directories(RunUnigenQA PUBLIC)
+add_executable(RunUnigenQA macro/RunUnigenQA.C)
+target_link_libraries(RunUnigenQA UnigenQA ${ROOT_LIBRARIES})
+target_include_directories(RunUnigenQA PUBLIC)
 
 include(GenerateExportHeader)
 

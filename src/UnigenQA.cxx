@@ -89,7 +89,8 @@ void UnigenQA::Init_Histograms()
 		gMomentumAxes[kMcm].max = fA;
 		gMomentumAxes[kElab].max = fElab * fA;
 		gMomentumAxes[kPlab].max = fElab * fA;
-		gMomentumAxes[kMlab].max = fA;
+		gMomentumAxes[kPzLab].max = fElab * fA;
+		//gMomentumAxes[kMlab].max = fA;
 		gMomentumAxes[kA].max = fA + 2; gMomentumAxes[kA].nBins = fA + 2;
 		gMomentumAxes[kZ].max = fZ + 2; gMomentumAxes[kZ].nBins = fZ + 2;
 		
@@ -226,7 +227,7 @@ void UnigenQA::FillTracks()
 		TLorentzVector momentum;
     Int_t yield[kParticles] = {0};
 		Int_t pdg, A, Z;
-		double y, theta, Elab, Ecm, Pcm, Plab, Mcm, Mlab;
+		double y, theta, Elab, Ecm, Pcm, Plab, PzLab, Mcm, Mlab;
 		
 		fAmax = 0;
 		fZmax = 0;
@@ -242,7 +243,6 @@ void UnigenQA::FillTracks()
     {
         track = event_ -> GetParticle(i);
 				pdg = track -> GetPdg();
-//				if (pdg == 22) continue; // patch
 				if (pdg / 1000000000 != 0) 
 				{
 					A = abs (pdg % 10000 / 10);
@@ -265,15 +265,11 @@ void UnigenQA::FillTracks()
 				Ecm = momentum.E ();
 				Pcm = momentum.P ();
 				Mcm = sqrt (fabs (Ecm * Ecm - Pcm * Pcm));
-//				Mcm = sqrt (Ecm * Ecm - Pcm * Pcm);
-				if (Ecm - Pcm < 0.) 
-				{
-//					cout << "m^2 = " << Ecm * Ecm - Pcm * Pcm << "\tMcm = " << Mcm << "\tA = " << A << "\tZ = " << Z << "\ti = " << i << "\tpdg = " << pdg << endl;
-				}
 				momentum.Boost (0., 0., fBeta);
 				theta = momentum.Theta ();
 				Elab = momentum.E ();
 				Plab = momentum.P ();
+				PzLab = momentum.Pz ();
 				Mlab = sqrt (fabs(Elab * Elab - Plab * Plab));
 				
 
@@ -288,13 +284,14 @@ void UnigenQA::FillTracks()
 				mom [kElab] = Elab;
 				mom [kPcm] = Pcm;
 				mom [kPlab] = Plab;
+				mom [kPzLab] = PzLab;
 				mom [kMcm] = Mcm;
-				mom [kMlab] = Mlab;
+				//mom [kMlab] = Mlab;
 				mom [kA] = A;
 				mom [kZ] = Z;
-				mom [kMpdg] = A * 0.931;
-				mom [kMcm_Ecm] = Mcm / Ecm;
-				mom [kMlab_Elab] = Mlab / Elab;
+				//mom [kMpdg] = A * 0.931;
+				//mom [kMcm_Ecm] = Mcm / Ecm;
+				//mom [kMlab_Elab] = Mlab / Elab;
 				
 //				if (mom [kPlab] > gMomentumAxes[kPlab].max || mom [kElab] > gMomentumAxes[kElab].max) cout << i << "\t" << mom [kA] << "\t" << mom [kPcm] << "\t" << mom [kEcm] << endl;
 				
@@ -325,8 +322,9 @@ void UnigenQA::FillTracks()
 				}
 				
         for(Int_t iPart=0; iPart<kParticles; ++iPart) {
-						if (pdg / 1000000000 != 0) pdg = 999999;
-						if (abs (pdg) < 38 && pdg != 22) pdg = 99999;
+						if (iPart == kLEPTONS && abs (pdg) < 38 && pdg != 22) pdg = 99999;
+						if (iPart == kFRAGMENTS && pdg / 1000000000 != 0) pdg = 999999;
+            
             if (gParticles[iPart].pdg == pdg) 
 						{
                 yield[iPart] += 1;
@@ -345,11 +343,12 @@ void UnigenQA::FillTracks()
                     pVn_Y[iHarm][iPart] ->  Fill ( mom[kYM] , Cos( (iHarm+1)*(mom[kPHI] - psiRP) ) );
                 }
             }
+						if (iPart == kLEPTONS || iPart == kFRAGMENTS) pdg = track -> GetPdg ();
         }
     }
 
-    for (Int_t i = 0; i < kParticles; i++) {
-        hYields[i]->Fill(event_->GetB (), yield[i]);
+    for (Int_t iPart = 0; iPart < kParticles; iPart++) {
+        hYields[iPart]->Fill(event_->GetB (), yield[iPart]);
     }
 }
 
