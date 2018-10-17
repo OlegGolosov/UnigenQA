@@ -211,7 +211,7 @@ namespace qa {
 
         void SetReferenceChain(TChain *fReferenceChain) { UnigenQA::fReferenceChain = fReferenceChain; }
 
-        void Run(Int_t nEvents = 1e9);
+        void Run(Long64_t nEvents = 1e9);
 
 	private:
 

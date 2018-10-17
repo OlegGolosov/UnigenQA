@@ -67,10 +67,11 @@ void UnigenQA::Init(TString filePath, TString treeName)
 	cout << "beta = " << fBeta << endl;
 }
 
-void UnigenQA::Run(Int_t nEvents)
+void UnigenQA::Run (Long64_t nEvents)
 {
     Long64_t nevents =  nEvents < fChain->GetEntries() ? nEvents : fChain->GetEntries();
     Long64_t outputStep = nevents / 10;
+    if (outputStep == 0) outputStep = 1;
     std::cout << "Entries = " << nevents << std::endl;
 
     for (int i = 0; i < nevents; i++)
@@ -226,8 +227,8 @@ void UnigenQA::FillTracks()
     Int_t nTracks = event_->GetNpa();
 		TLorentzVector momentum;
     Int_t yield[kParticles] = {0};
-		Int_t pdg, A, Z;
-		double y, theta, Elab, Ecm, Pcm, Plab, PzLab, Mcm, Mlab;
+		Int_t pdg, A, Z, flowSign;
+		double y, theta, flow, Elab, Ecm, Pcm, Plab, PzLab, Mcm, Mlab;
 		
 		fAmax = 0;
 		fZmax = 0;
@@ -306,8 +307,11 @@ void UnigenQA::FillTracks()
         }
 
         for (Int_t iHarm=0; iHarm<2; ++iHarm) {
-						pVn_pT[iHarm][kALLSPECIES] -> Fill ( mom[kPT], Cos( (iHarm+1)*(mom[kPHI] - psiRP) ) );
-						pVn_Y[iHarm][kALLSPECIES] ->  Fill ( mom[kYM] , Cos( (iHarm+1)*(mom[kPHI] - psiRP) ) );
+            if (iHarm % 2 == 0 && y < 0.) flowSign = -1.;
+            else flowSign = 1.;
+            flow = cos ( (iHarm + 1) * ( mom [kPHI] - psiRP) );
+						pVn_pT[iHarm][kALLSPECIES] -> Fill ( mom[kPT], flowSign * flow );
+						pVn_Y[iHarm][kALLSPECIES] ->  Fill ( mom[kYM] , flow );
 				}
 				yield[kALLSPECIES] += 1;
 				
@@ -339,8 +343,11 @@ void UnigenQA::FillTracks()
 								}
 
                 for (Int_t iHarm=0; iHarm<2; ++iHarm) {
-                    pVn_pT[iHarm][iPart] -> Fill ( mom[kPT], Cos( (iHarm+1)*(mom[kPHI] - psiRP) ) );
-                    pVn_Y[iHarm][iPart] ->  Fill ( mom[kYM] , Cos( (iHarm+1)*(mom[kPHI] - psiRP) ) );
+                  if (iHarm % 2 == 0 && y < 0.) flowSign = -1.;
+                  else flowSign = 1.;
+                  flow = cos ( (iHarm + 1) * ( mom [kPHI] - psiRP) );
+                  pVn_pT[iHarm][iPart] -> Fill ( mom[kPT], flowSign * flow  );
+                  pVn_Y[iHarm][iPart] ->  Fill ( mom[kYM] , flow );
                 }
             }
 						if (iPart == kLEPTONS || iPart == kFRAGMENTS) pdg = track -> GetPdg ();
