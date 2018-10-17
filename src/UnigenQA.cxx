@@ -69,14 +69,14 @@ void UnigenQA::Init(TString filePath, TString treeName)
 
 void UnigenQA::Run (Long64_t nEvents)
 {
-    Long64_t nevents =  nEvents < fChain->GetEntries() ? nEvents : fChain->GetEntries();
-    Long64_t outputStep = nevents / 10;
+    Long64_t nEntries =  nEvents < fChain->GetEntries() ? nEvents : fChain->GetEntries();
+    Long64_t outputStep = nEntries / 10;
     if (outputStep == 0) outputStep = 1;
-    std::cout << "Entries = " << nevents << std::endl;
+    std::cout << "Entries = " << nEntries << std::endl;
 
-    for (int i = 0; i < nevents; i++)
+    for (int i = 0; i < nEntries; i++)
     {
-        if ( (i + 1) % outputStep == 0) std::cout << i + 1 << "/" << nevents << "\r" << std::flush;
+        if ( (i + 1) % outputStep == 0) std::cout << i + 1 << "/" << nEntries << "\r" << std::flush;
         fChain -> GetEntry (i);
 				FillTracks (); // !!! particle loop goes before the event loop (energy summ is calculated in the former)
         FillEventInfo (); // !!! particle loop goes before the event loop (energy summ is calculated in the former)
@@ -102,6 +102,9 @@ void UnigenQA::Init_Histograms()
     }
     fPSDMax = (fElab + 1.) * (fA + 3);
     Double_t fMmax = fReferenceChain -> GetMaximum ("fNpa") + 10;
+
+    cout << "fPSDMax = " << fPSDMax << endl;
+    cout << "fMmax = " << fMmax << endl;
 
     TString name, title;
 
@@ -195,7 +198,7 @@ void UnigenQA::FillEventInfo()
     double B = event_ -> GetB();
     double psiRP = event_ -> GetPhi();
 		
-		if (fPSDGroupEnergy [0][0] > fPSDMax) cout << "full energy = " << fPSDGroupEnergy [0][0] << endl;
+		if (fPSDGroupEnergy [0][0] > fPSDMax) cout << "EventId = " << event_ -> GetEventNr () << ", full energy = " << fPSDGroupEnergy [0][0] << endl;
 		
 		for (uint pidGroup = 0; pidGroup < fPidGroups.size(); pidGroup++)
 		{
