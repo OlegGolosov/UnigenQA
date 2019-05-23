@@ -60,7 +60,9 @@ void UnigenQA::Init(TString filePath, TString treeName)
   fPlab = sqrt (fElab * fElab - mProton * mProton);
   fEkin = fSnn * fSnn / 1.87 - 1.87;
   fBeta = 2. * fPcm / fSnn;
-  cout << "Snn = " << fA << " AGeV" << endl;
+  cout << "A = " << fA << endl;
+  cout << "Z = " << fZ << endl;
+  cout << "Snn = " << fSnn << " AGeV" << endl;
   cout << "Pcm = " << fPcm << " AGeV" << endl;
   cout << "Plab = " << fPlab << " AGeV" << endl;
   cout << "Elab = " << fElab << " AGeV" << endl;
@@ -104,9 +106,9 @@ void UnigenQA::Init_Histograms()
   gMomentumAxes[kEcm].max = fSnn * fA * 0.5;
   gMomentumAxes[kPcm].max = fSnn * fA * 0.5;
   gMomentumAxes[kMcm].max = fA;
-  gMomentumAxes[kElab].max = fElab * fA;
-  gMomentumAxes[kPlab].max = fElab * fA;
-  gMomentumAxes[kPzLab].max = fElab * fA;
+  gMomentumAxes[kElab].max = fElab * fA * 1.2;
+  gMomentumAxes[kPlab].max = fElab * fA * 1.2;
+  gMomentumAxes[kPzLab].max = fElab * fA * 1.2;
   //gMomentumAxes[kMlab].max = fA;
   gMomentumAxes[kA].max = fA + 2;
   gMomentumAxes[kA].nBins = fA + 2;
@@ -119,7 +121,7 @@ void UnigenQA::Init_Histograms()
   {
     cout << "Using reference chain..." << endl;
   }
-  fPSDMax = (fElab + 1.) * (fA + 3);
+  fPSDMax = fElab * fA * 1.2;
   Double_t fMmax = fReferenceChain -> GetMaximum ("fNpa") + 10;
 
   cout << "fPSDMax = " << fPSDMax << endl;
@@ -128,7 +130,7 @@ void UnigenQA::Init_Histograms()
   TString name, title;
 
   hM = new TH1D("hM","Track multiplicity;Multiplicity;nEvents", Nint (fMmax), 0, fMmax);
-  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 170, 0, 17);
+  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 170, 0, 20);
   hPsi = new TH1D("hPsi", "#Psi_{RP};#Psi_{RP} (rad);Nevents", 100, -3.15, 3.15);
 
   hMBcorr = new TH2D("hMBcorr", "M : B;Multiplicity;B (fm)", Nint (fMmax), 0, fMmax, 170, 0, 17);
