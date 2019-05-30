@@ -121,7 +121,7 @@ void UnigenQA::Init_Histograms()
   {
     cout << "Using reference chain..." << endl;
   }
-  fPSDMax = (fElab + 1.) * fA;
+  fPSDMax = (fElab + 1.) * fA * 1.05;
   Double_t fMmax = fReferenceChain -> GetMaximum ("fNpa") + 10;
 
   cout << "fPSDMax = " << fPSDMax << endl;
@@ -130,12 +130,12 @@ void UnigenQA::Init_Histograms()
   TString name, title;
 
   hM = new TH1D("hM","Track multiplicity;Multiplicity;nEvents", Nint (fMmax), 0, fMmax);
-  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 170, 0, 20);
+  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 200, 0, 20);
   hPsi = new TH1D("hPsi", "#Psi_{RP};#Psi_{RP} (rad);Nevents", 100, -3.15, 3.15);
 
-  hMBcorr = new TH2D("hMBcorr", "M : B;Multiplicity;B (fm)", Nint (fMmax), 0, fMmax, 170, 0, 17);
-  h2BAmax = new TH2D("h2BAmax", "B : A_{max};B (fm);A_{max}", 170, 0, 17, 200, 0, 200);
-  h2BZmax = new TH2D("h2BZmax", "B : Z_{max};B (fm);Z_{max}", 170, 0, 17, 82, 0, 82);
+  hMBcorr = new TH2D("hMBcorr", "M : B;Multiplicity;B (fm)", Nint (fMmax), 0, fMmax, 200, 0, 20);
+  h2BAmax = new TH2D("h2BAmax", "B : A_{max};B (fm);A_{max}", 200, 0, 20, 200, 0, 200);
+  h2BZmax = new TH2D("h2BZmax", "B : Z_{max};B (fm);Z_{max}", 200, 0, 20, 82, 0, 82);
 
   /* PSD histogram initialization */
   Int_t nbins = 500;
@@ -161,7 +161,7 @@ void UnigenQA::Init_Histograms()
       hPSDMultCorr [group.id][pidGroup] = new TH2D(name, title, Nint(fMmax), 0, Nint(fMmax), nbins, 0, fPSDMax);
       name = "hBPSDCorr_" + group.name + "_" + fPidGroupNames [pidGroup];
       title = name + ";E (GeV);B (fm)";
-      hBPSDCorr [group.id][pidGroup] = new TH2D(name, title, nbins, 0, fPSDMax, 170, 0, 17);
+      hBPSDCorr [group.id][pidGroup] = new TH2D(name, title, nbins, 0, fPSDMax, 200, 0, 20);
     }
   }
 
