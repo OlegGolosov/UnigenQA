@@ -3,18 +3,30 @@ project(UnigenQA)
 set(PROJECT_VERSION 1.0)
 set(CMAKE_cpp_STANDARD 11)
 set(CMAKE_BUILD_TYPE debug)
+#set(LD_FLAGS "${MCDST_HOME}/libMcDst.so")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LD_FLAGS}")
 
-file(GLOB UNIGEN_SOURCES Unigen/*.cxx)
-file(GLOB UNIGEN_HEADERS Unigen/*.h)
-file(GLOB UNIGEN_HEADERS_DICT RELATIVE ${CMAKE_SOURCE_DIR}/Unigen Unigen/*.h)
+file(GLOB MCDST_SOURCES ${MCDST_HOME}/*.cxx)
+file(GLOB MCDST_HEADERS ${MCDST_HOME}/*.h)
+file(GLOB MCDST_HEADERS_DICT RELATIVE ${MCDST_HOME} *.h)
+list(REMOVE_ITEM MCDST_HEADERS_DICT McDstLinkDef.h)
+
 file(GLOB QA_SOURCES src/*.cxx)
 file(GLOB QA_HEADERS src/*.h)
 file(GLOB QA_HEADERS_DICT RELATIVE ${CMAKE_SOURCE_DIR}/src src/*.h)
-list(REMOVE_ITEM UNIGEN_HEADERS_DICT UnigenLinkDef.h)
+
+
+message (STATUS ${MCDST_HOME})
+list(APPEND CMAKE_PREFIX_PATH ${MCDST_HOME})
 
 set (HEADERS 
-	${UNIGEN_HEADERS}
+	${MCDST_HEADERS}
 	${QA_HEADERS}
+)
+
+set (SOURCES 
+	${MCDST_SOURCES}
+	${QA_SOURCES}
 )
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -23,29 +35,31 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 # Telling CMake where to find the ROOT installation.
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/lib")
+list(APPEND CMAKE_PREFIX_PATH "${MCDST_HOME}")
 
 #---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
-find_package(ROOT REQUIRED COMPONENTS Core MathCore RIO)
-#find_package(ROOT REQUIRED COMPONENTS Core MathCore MathMore RIO Hist Tree Net TreePlayer)
+find_package(ROOT REQUIRED COMPONENTS Core MathCore RIO EG)
 
 # Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
 include(${ROOT_USE_FILE})
-message("${ROOT_USE_FILE}")
 add_definitions(${ROOT_CXX_FLAGS})
 
-include_directories(${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} Unigen src)
+include_directories(${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} ${MCDST_HOME} src)
 
-ROOT_GENERATE_DICTIONARY(G__Unigen ${UNIGEN_HEADERS_DICT} LINKDEF Unigen/UnigenLinkDef.h)
-add_library(Unigen SHARED ${UNIGEN_SOURCES} G__Unigen)
-target_link_libraries(Unigen ${ROOT_LIBRARIES})
+#ROOT_GENERATE_DICTIONARY(G__McDst ${MCDST_HEADERS_DICT} LINKDEF ${MCDST_HOME}/McDstLinkDef.h)
+#add_library(McDst SHARED ${MCDST_SOURCES} G__McDst)
+#target_link_libraries(McDst ${ROOT_LIBRARIES})
+link_directories (${MCDST_HOME})
 
 add_library(UnigenQA SHARED ${QA_SOURCES})
-target_link_libraries(UnigenQA ${ROOT_LIBRARIES} Unigen)
-add_dependencies(UnigenQA Unigen)
+target_link_libraries(UnigenQA ${ROOT_LIBRARIES} McDst)
+#add_dependencies(UnigenQA McDst)
 
 # Create a main program using the library
 add_executable(RunUnigenQA macro/RunUnigenQA.C)
 target_link_libraries(RunUnigenQA UnigenQA ${ROOT_LIBRARIES})
+add_dependencies(RunUnigenQA UnigenQA)
+
 target_include_directories(RunUnigenQA PUBLIC)
 
 include(GenerateExportHeader)
@@ -58,7 +72,7 @@ if (${CMAKE_MAJOR_VERSION} GREATER 2)
     set_property(TARGET UnigenQA PROPERTY INTERFACE_UnigenQA_MAJOR_VERSION 1)
     set_property(TARGET UnigenQA APPEND PROPERTY COMPATIBLE_INTERFACE_STRING INTERFACE_UnigenQA_MAJOR_VERSION)
 
-    install(TARGETS Unigen UnigenQA 
+    install(TARGETS UnigenQA 
 	    EXPORT UnigenQATargets
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib

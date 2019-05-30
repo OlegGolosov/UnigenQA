@@ -14,9 +14,10 @@
 #include <TChain.h>
 #include <TString.h>
 
-#include "URun.h"
-#include "UEvent.h"
-#include "UParticle.h"
+#include "McDst.h"
+#include "McDstReader.h"
+#include "McEvent.h"
+#include "McParticle.h"
 
 using namespace std;
 
@@ -272,7 +273,9 @@ private:
 
   TChain *fChain;
   TChain *fReferenceChain{};
-  UEvent *event_;
+  McDstReader *myReader;
+  McEvent *event;
+  McDst *dst;
   double fPSDMax, fSnn {-999.}, fPcm {-999.}, fPlab {-999.}, fElab {-999.}, fEkin {-999.}, fBeta {-999.}, fA {-999.}, fZ {-999.};
   vector <vector <int>> fPidGroups = {{0, 1099999999}, {37, 1099999999}};
   vector <TString> fPidGroupNames = {"all species", "hadrons"};

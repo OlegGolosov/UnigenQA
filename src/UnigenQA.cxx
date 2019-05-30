@@ -2,6 +2,7 @@
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include "UnigenQA.h"
+#include "McRun.h"
 
 using namespace TMath;
 using namespace std;
@@ -16,40 +17,18 @@ UnigenQA::~UnigenQA()
 
 void UnigenQA::Init(TString filePath, TString treeName)
 {
-  fChain = new TChain (treeName);
-  fChain -> Add (filePath);
-  event_ = new UEvent;
-  fChain -> SetBranchAddress("event",&event_);
+  myReader = new McDstReader(filePath);
+  myReader->Init();
+  myReader->setStatus("*",0);
+  myReader->setStatus("Event",1);
+  myReader->setStatus("Particle",1);
 
-  // Get run description
-  TString fileName;
-
-  if (!filePath.Contains("*")) fileName = filePath;
-  else
-  {
-    TString dirName = filePath.Remove (filePath.Last('/') + 1, 10000);
-    TSystemDirectory dir (dirName, dirName);
-    TList *files = dir.GetListOfFiles ();
-    if (files)
-    {
-      TSystemFile *sysFile;
-      TIter next(files);
-      while ((sysFile=(TSystemFile*)next()) && !fileName.EndsWith(".root"))
-      {
-        fileName = dirName + sysFile -> GetName();
-      }
-    }
-  }
-
-  cout << "fileName = " << fileName << endl;
-
-  TFile *file = new TFile (fileName, "open");
-  URun* run = (URun*) file -> Get("run");
+  McRun* run = myReader->run();
   if(NULL==run)
   {
     cout << "No run description in input file." << endl;
   }
-  run -> Dump ();
+  run -> print ();
   if(TMath::Abs(run->GetPTarg()) > 0.001) cout << "Input data is in CM frame" << endl;
   double mProton = 0.938272029;
   fA = run -> GetAProj() > run -> GetATarg() ? run -> GetAProj() : run -> GetATarg();
@@ -87,7 +66,7 @@ TChain *UnigenQA::MakeChain(TString filename, TString treename) {
 
 void UnigenQA::Run (Long64_t nEvents)
 {
-  Long64_t nEntries =  nEvents < fChain->GetEntries() ? nEvents : fChain->GetEntries();
+  Long64_t nEntries =  nEvents < myReader->chain()->GetEntries() ? nEvents : myReader->chain()->GetEntries();
   Long64_t outputStep = nEntries / 10;
   if (outputStep == 0) outputStep = 1;
   std::cout << "Entries = " << nEntries << std::endl;
@@ -95,7 +74,11 @@ void UnigenQA::Run (Long64_t nEvents)
   for (int i = 0; i < nEntries; i++)
   {
     if ( (i + 1) % outputStep == 0) std::cout << i + 1 << "/" << nEntries << "\r" << std::flush;
-    fChain -> GetEntry (i);
+    if(!myReader->loadEntry(i)) break;
+    dst = myReader->mcDst();
+    // Retrieve event information
+    event = dst->event();
+    if (dst->numberOfParticles() <= fA * 2) continue; // PATCH: exclude elastic scattering
     FillTracks (); // !!! particle loop goes before the event loop (energy summ is calculated in the former)
     FillEventInfo (); // !!! particle loop goes before the event loop (energy summ is calculated in the former)
   }
@@ -106,9 +89,9 @@ void UnigenQA::Init_Histograms()
   gMomentumAxes[kEcm].max = fSnn * fA * 0.5;
   gMomentumAxes[kPcm].max = fSnn * fA * 0.5;
   gMomentumAxes[kMcm].max = fA;
-  gMomentumAxes[kElab].max = fElab * fA * 1.2;
-  gMomentumAxes[kPlab].max = fElab * fA * 1.2;
-  gMomentumAxes[kPzLab].max = fElab * fA * 1.2;
+  gMomentumAxes[kElab].max = fElab * fA;
+  gMomentumAxes[kPlab].max = (fElab + 1.) * fA;
+  gMomentumAxes[kPzLab].max = (fElab + 1.) * fA;
   //gMomentumAxes[kMlab].max = fA;
   gMomentumAxes[kA].max = fA + 2;
   gMomentumAxes[kA].nBins = fA + 2;
@@ -121,8 +104,8 @@ void UnigenQA::Init_Histograms()
   {
     cout << "Using reference chain..." << endl;
   }
-  fPSDMax = fElab * fA * 1.2;
-  Double_t fMmax = fReferenceChain -> GetMaximum ("fNpa") + 10;
+  fPSDMax = (fElab + 1.) * fA * 1.05;
+  Double_t fMmax = 1088;
 
   cout << "fPSDMax = " << fPSDMax << endl;
   cout << "fMmax = " << fMmax << endl;
@@ -130,12 +113,12 @@ void UnigenQA::Init_Histograms()
   TString name, title;
 
   hM = new TH1D("hM","Track multiplicity;Multiplicity;nEvents", Nint (fMmax), 0, fMmax);
-  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 170, 0, 20);
+  hB = new TH1D("hB","Impact parameter; B (fm);nEvents", 200, 0, 20);
   hPsi = new TH1D("hPsi", "#Psi_{RP};#Psi_{RP} (rad);Nevents", 100, -3.15, 3.15);
 
-  hMBcorr = new TH2D("hMBcorr", "M : B;Multiplicity;B (fm)", Nint (fMmax), 0, fMmax, 170, 0, 17);
-  h2BAmax = new TH2D("h2BAmax", "B : A_{max};B (fm);A_{max}", 170, 0, 17, 200, 0, 200);
-  h2BZmax = new TH2D("h2BZmax", "B : Z_{max};B (fm);Z_{max}", 170, 0, 17, 82, 0, 82);
+  hMBcorr = new TH2D("hMBcorr", "M : B;Multiplicity;B (fm)", Nint (fMmax), 0, fMmax, 200, 0, 20);
+  h2BAmax = new TH2D("h2BAmax", "B : A_{max};B (fm);A_{max}", 200, 0, 20, 200, 0, 200);
+  h2BZmax = new TH2D("h2BZmax", "B : Z_{max};B (fm);Z_{max}", 200, 0, 20, 82, 0, 82);
 
   /* PSD histogram initialization */
   Int_t nbins = 500;
@@ -161,7 +144,7 @@ void UnigenQA::Init_Histograms()
       hPSDMultCorr [group.id][pidGroup] = new TH2D(name, title, Nint(fMmax), 0, Nint(fMmax), nbins, 0, fPSDMax);
       name = "hBPSDCorr_" + group.name + "_" + fPidGroupNames [pidGroup];
       title = name + ";E (GeV);B (fm)";
-      hBPSDCorr [group.id][pidGroup] = new TH2D(name, title, nbins, 0, fPSDMax, 170, 0, 17);
+      hBPSDCorr [group.id][pidGroup] = new TH2D(name, title, nbins, 0, fPSDMax, 200, 0, 20);
     }
   }
 
@@ -218,11 +201,11 @@ void UnigenQA::Init_Histograms()
 
 void UnigenQA::FillEventInfo()
 {
-  double M = event_ -> GetNpa();
-  double B = event_ -> GetB();
-  double psiRP = event_ -> GetPhi();
+  double M = dst->numberOfParticles();
+  double B = event -> GetB();
+  double psiRP = event -> GetPhi();
 
-  if (fPSDGroupEnergy [0][0] > fPSDMax) cout << "EventId = " << event_ -> GetEventNr () << ", full energy = " << fPSDGroupEnergy [0][0] << endl;
+  if (fPSDGroupEnergy [0][0] > fPSDMax) cout << "EventId = " << event -> GetEventNr () << ", full energy = " << fPSDGroupEnergy [0][0] << endl;
 
   for (uint pidGroup = 0; pidGroup < fPidGroups.size(); pidGroup++)
   {
@@ -251,9 +234,9 @@ void UnigenQA::FillEventInfo()
 
 void UnigenQA::FillTracks()
 {
-  UParticle* track;
-  double psiRP = event_ -> GetPhi();
-  Int_t nTracks = event_->GetNpa();
+  McParticle* track;
+  double psiRP = event -> GetPhi();
+  Int_t nTracks = dst->numberOfParticles();
   TLorentzVector momentum;
   Int_t yield[kParticles] = {0};
   Int_t pdg, A, Z, flowSign;
@@ -271,7 +254,7 @@ void UnigenQA::FillTracks()
 
   for (int i=0; i<nTracks; i++)
   {
-    track = event_ -> GetParticle(i);
+    track = dst->particle(i);
     pdg = track -> GetPdg();
     if (pdg / 1000000000 != 0)
     {
@@ -393,7 +376,7 @@ void UnigenQA::FillTracks()
 
   for (Int_t iPart = 0; iPart < kParticles; iPart++)
   {
-    hYields[iPart]->Fill(event_->GetB (), yield[iPart]);
+    hYields[iPart]->Fill(event->GetB (), yield[iPart]);
   }
 }
 
