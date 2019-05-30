@@ -105,10 +105,10 @@ void UnigenQA::Init_Histograms()
 {
   gMomentumAxes[kEcm].max = fSnn * fA * 0.5;
   gMomentumAxes[kPcm].max = fSnn * fA * 0.5;
-  gMomentumAxes[kMcm].max = fA;
-  gMomentumAxes[kElab].max = fElab * fA * 1.2;
-  gMomentumAxes[kPlab].max = fElab * fA * 1.2;
-  gMomentumAxes[kPzLab].max = fElab * fA * 1.2;
+  gMomentumAxes[kMcm].max = fA; 
+  gMomentumAxes[kElab].max = fElab * fA;
+  gMomentumAxes[kPlab].max = (fElab + 1.) * fA;
+  gMomentumAxes[kPzLab].max = (fElab + 1.) * fA;
   //gMomentumAxes[kMlab].max = fA;
   gMomentumAxes[kA].max = fA + 2;
   gMomentumAxes[kA].nBins = fA + 2;
@@ -121,7 +121,7 @@ void UnigenQA::Init_Histograms()
   {
     cout << "Using reference chain..." << endl;
   }
-  fPSDMax = fElab * fA * 1.2;
+  fPSDMax = (fElab + 1.) * fA;
   Double_t fMmax = fReferenceChain -> GetMaximum ("fNpa") + 10;
 
   cout << "fPSDMax = " << fPSDMax << endl;
