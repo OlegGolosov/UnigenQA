@@ -103,12 +103,12 @@ void UnigenQA::Run (Long64_t nEvents)
 
 void UnigenQA::Init_Histograms()
 {
-  gMomentumAxes[kEcm].max = fSnn * fA * 0.5;
-  gMomentumAxes[kPcm].max = fSnn * fA * 0.5;
+  gMomentumAxes[kEcm].max = fSnn * 2;
+  gMomentumAxes[kPcm].max = fSnn * 2;
   gMomentumAxes[kMcm].max = fA; 
-  gMomentumAxes[kElab].max = fElab * fA;
-  gMomentumAxes[kPlab].max = (fElab + 1.) * fA;
-  gMomentumAxes[kPzLab].max = (fElab + 1.) * fA;
+  gMomentumAxes[kElab].max = fElab * 3;
+  gMomentumAxes[kPlab].max = fElab * 3;
+  gMomentumAxes[kPzLab].max = fElab* 3;
   //gMomentumAxes[kMlab].max = fA;
   gMomentumAxes[kA].max = fA + 2;
   gMomentumAxes[kA].nBins = fA + 2;
