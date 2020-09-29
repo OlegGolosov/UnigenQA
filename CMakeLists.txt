@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.4)
 project(UnigenQA)
 set(PROJECT_VERSION 1.0)
 set(CMAKE_cpp_STANDARD 11)
-set(CMAKE_BUILD_TYPE debug)
 
 file(GLOB UNIGEN_SOURCES Unigen/*.cxx)
 file(GLOB UNIGEN_HEADERS Unigen/*.h)
