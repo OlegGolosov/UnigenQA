@@ -274,16 +274,16 @@ private:
   TChain *fReferenceChain{};
   UEvent *event_;
   double fPSDMax, fSnn {-999.}, fPcm {-999.}, fPlab {-999.}, fElab {-999.}, fEkin {-999.}, fBeta {-999.}, fA {-999.}, fZ {-999.};
-  vector <vector <int>> fPidGroups = {{0, 1099999999}, {37, 1099999999}};
-  vector <TString> fPidGroupNames = {"all species", "hadrons"};
-  double fPSDGroupEnergy [kPSDGroups][2];
+  vector <vector <int>> fPidGroups = {{0, 1099999999}/*, {37, 1099999999}*/};
+  vector <TString> fPidGroupNames = {""/*,"all species", "hadrons"*/};
+  vector < vector <double> > fPSDGroupEnergy;
   int fAmax, fZmax;
 
   /* PSD correlation histograms */
-  TH1D *hPSDGroupEnergy [kPSDGroups][2];
-  TH2D *hPSDMultCorr [kPSDGroups][2];
-  TH2D *hBPSDCorr [kPSDGroups][2];
-  TH2D *hPSDGroupsCorr [3][2];
+  vector < vector <TH1D*> > hPSDGroupEnergy;
+  vector < vector <TH2D*> > hPSDMultCorr;
+  vector < vector <TH2D*> > hBPSDCorr;
+  vector < vector <TH2D*> > hPSDGroupsCorr;
 
   TH1D *hM;
   TH1D *hB;
