@@ -365,8 +365,9 @@ void UnigenQA::FillTracks()
       else
         flowSign = 1.;
       flow = cos((iHarm + 1) * (mom[kPHI] - psiRP));
-      pVn_pT[iHarm][kALLSPECIES]->Fill(mom[kPT], flowSign * flow);
       pVn_Y[iHarm][kALLSPECIES]->Fill(mom[kYM], flow);
+      if (fabs(y) < 1.)
+        pVn_pT[iHarm][kALLSPECIES]->Fill(mom[kPT], flowSign * flow);
     }
     yield[kALLSPECIES] += 1;
 
@@ -409,8 +410,9 @@ void UnigenQA::FillTracks()
           else
             flowSign = 1.;
           flow = cos((iHarm + 1) * (mom[kPHI] - psiRP));
-          pVn_pT[iHarm][iPart]->Fill(mom[kPT], flowSign * flow);
           pVn_Y[iHarm][iPart]->Fill(mom[kYM], flow);
+          if (fabs(y) < 1.)
+            pVn_pT[iHarm][iPart]->Fill(mom[kPT], flowSign * flow);
         }
       }
       if(iPart == kLEPTONS || iPart == kFRAGMENTS)
