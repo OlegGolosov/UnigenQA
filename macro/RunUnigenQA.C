@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void RunUnigenQA (TString filePath = "/home/ogolosov/Desktop/analysis/mc/model_root/dcmqgsm_12.root",
+void RunUnigenQA (TString filePath = "/home/ogolosov/desktop/analysis/mc/model_root/dcmqgsm_12.root",
                   TString qaPath = "qa.root", Long64_t nEvents = 1e9)
 {
   TStopwatch timer;

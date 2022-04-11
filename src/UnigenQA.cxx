@@ -111,12 +111,12 @@ void UnigenQA::Run(Long64_t nEvents)
 
 void UnigenQA::Init_Histograms()
 {
-  gMomentumAxes[kEcm].max = fSnn * 2;
-  gMomentumAxes[kPcm].max = fSnn * 2;
-  gMomentumAxes[kMcm].max = fA;
-  gMomentumAxes[kElab].max = fElab * 3;
-  gMomentumAxes[kPlab].max = fElab * 3;
-  gMomentumAxes[kPzLab].max = fElab * 3;
+  gMomentumAxes[kEcm].max = round(fSnn * 2);
+  gMomentumAxes[kPcm].max = round(fSnn * 2);
+  gMomentumAxes[kElab].max = round(fElab * 3);
+  gMomentumAxes[kPlab].max = round(fElab * 3);
+  gMomentumAxes[kPzLab].max = round(fElab * 3);
+  gMomentumAxes[kMcm].max = fA + 2;
   // gMomentumAxes[kMlab].max = fA;
   gMomentumAxes[kA].max = fA + 2;
   gMomentumAxes[kA].nBins = fA + 2;
@@ -129,8 +129,8 @@ void UnigenQA::Init_Histograms()
   {
     cout << "Using reference chain..." << endl;
   }
-  fPSDMax = (fElab + 1.) * fA * 1.05;
-  Double_t fMmax = fReferenceChain->GetMaximum("fNpa") + 10;
+  fPSDMax = round(fElab*fA/100)*110;
+  Double_t fMmax = round(fReferenceChain->GetMaximum("fNpa")/100.)*110;
 
   cout << "fPSDMax = " << fPSDMax << endl;
   cout << "fMmax = " << fMmax << endl;
@@ -211,9 +211,9 @@ void UnigenQA::Init_Histograms()
       hTrackMomentumCorr[iCorr][iPart]->SetYTitle(yAxis.displayName);
     }
 
-    name = "hYield" + particle.name;
-    title = "hYield" + particle.displayName + ";B (fm);Nparticles";
-    hYields[iPart] = new TProfile(name, title, 100, 0, 20);
+    name = "h2Yield" + particle.name;
+    title = "h2Yield_" + particle.displayName + ";B (fm);#it{y};#LTdN/d#it{y}#GT";
+    h2Yields[iPart] = new TProfile2D(name, title, 100, 0., 20., (gMomentumAxes[kYM].max-gMomentumAxes[kYM].min)/dy, gMomentumAxes[kYM].min, gMomentumAxes[kYM].max);
 
     for(Int_t iHarm = 0; iHarm < 2; ++iHarm)
     {
@@ -272,7 +272,7 @@ void UnigenQA::FillTracks()
   double psiRP = event_->GetPhi();
   Int_t nTracks = event_->GetNpa();
   TLorentzVector momentum;
-  Int_t yield[kParticles] = {0};
+  TH2I yield("yield","",kParticles+1, 0, kParticles+1, h2Yields[0]->GetNbinsY(), h2Yields[0]->GetYaxis()->GetXmin(), h2Yields[0]->GetYaxis()->GetXmax());
   Int_t pdg, A, Z, flowSign;
   double y, theta, flow, Elab, Ecm, Pcm, Plab, PzLab, Mcm, Mlab;
 
@@ -369,7 +369,7 @@ void UnigenQA::FillTracks()
       if (fabs(y) < 1.)
         pVn_pT[iHarm][kALLSPECIES]->Fill(mom[kPT], flowSign * flow);
     }
-    yield[kALLSPECIES] += 1;
+    yield.Fill(kALLSPECIES, mom[kYM]);
 
     for(auto group : gPSDGroups)
     {
@@ -390,7 +390,7 @@ void UnigenQA::FillTracks()
 
       if(gParticles[iPart].pdg == pdg)
       {
-        yield[iPart] += 1;
+        yield.Fill(iPart, mom[kYM]);
 
         for(Int_t iMom = 0; iMom < kAxes; ++iMom)
         {
@@ -421,9 +421,8 @@ void UnigenQA::FillTracks()
   }
 
   for(Int_t iPart = 0; iPart < kParticles; iPart++)
-  {
-    hYields[iPart]->Fill(event_->GetB(), yield[iPart]);
-  }
+    for(int iYbin=1; iYbin<=yield.GetNbinsY(); iYbin++)
+      h2Yields[iPart]->Fill(event_->GetB(), yield.GetYaxis()->GetBinCenter(iYbin), yield.GetBinContent(iPart+1,iYbin));
 }
 
 void UnigenQA::Write_Histograms(const TString filename)
@@ -518,7 +517,7 @@ void UnigenQA::Write_Histograms(const TString filename)
 
   outputDir = outputFile->mkdir("Yields");
   outputDir->cd();
-  for(auto hist : hYields)
+  for(auto hist : h2Yields)
     hist->Write();
 
   outputFile->Close();

@@ -10,7 +10,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
-#include <TProfile.h>
+#include <TProfile2D.h>
 #include <TChain.h>
 #include <TString.h>
 
@@ -170,15 +170,15 @@ const struct TParticle
   {kXIMINUS,      3312,  1.321, -1,  "_xi_minus",   "#Xi^{-}"},
   {kOMEGAPLUS,   -3334,  1.672,  0,  "_omega_plus",    "#Omega^{+}"},
   {kOMEGAMINUS,   3334,  1.672, -1,  "_omega_minus",   "#Omega^{-}"},
-  {kDEUTRON,      1000010020,  1.321,  1,  "_deutron",   "D"},
-  {kTRITON,       1000010030,  1.321,  1,  "_triton",   "T"},
-  {kHELIUM3,      1000020030,  1.321,  2,  "_helium3",   "He^{3}"},
-  {kHELIUM4,      1000020040,  1.321,  2,  "_helium4",   "He^{4}"},
-  {kHYPERDEUTRON, 1010010020,  1.321,  1,  "_hyperdeutron",   "D_{#Lambda}"},
-  {kHYPERTRITON,  1010010030,  1.321,  1,  "_hypertriton",    "T_{#Lambda}"},
-  {kHYPER2TRITON, 1020010030,  1.321,  1,  "_hyper2triton",   "T_{#Lambda#Lambda}"},
-  {kHYPERHELIUM3, 1010020030,  1.321,  2,  "_hyperhelium3",   "He^{3}_{#Lambda}"},
-  {kHYPERHELIUM4, 1010020040,  1.321,  2,  "_hyperhelium4",   "He^{4}_{#Lambda}"},
+  {kDEUTRON,      1000010020,  1.321,  1,  "_deutron",   "^{2}H"},
+  {kTRITON,       1000010030,  1.321,  1,  "_triton",   "^{3}H"},
+  {kHELIUM3,      1000020030,  1.321,  2,  "_helium3",   "^{3}He"},
+  {kHELIUM4,      1000020040,  1.321,  2,  "_helium4",   "^{4}He"},
+  {kHYPERDEUTRON, 1010010020,  1.321,  1,  "_hyperdeutron",   "^{2}_{#Lambda}H"},
+  {kHYPERTRITON,  1010010030,  1.321,  1,  "_hypertriton",    "^{3}_{#Lambda}H"},
+  {kHYPER2TRITON, 1020010030,  1.321,  1,  "_hyper2triton",   "^{3}_{#Lambda#Lambda}H"},
+  {kHYPERHELIUM3, 1010020030,  1.321,  2,  "_hyperhelium3",   "^{3}_{#Lambda}He"},
+  {kHYPERHELIUM4, 1010020040,  1.321,  2,  "_hyperhelium4",   "^{4}_{#Lambda}He"},
 };
 
 
@@ -310,7 +310,8 @@ private:
   TProfile *pVn_Y[2][kParticles];
 
   // Yields
-  TProfile *hYields[kParticles];
+  TProfile2D *h2Yields[kParticles];
+  double dy=0.1;
 };
 
 }
